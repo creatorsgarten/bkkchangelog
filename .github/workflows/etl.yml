@@ -1,0 +1,23 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 18 * * *'
+name: ETL
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: pnpm
+      - run: cd etl && pnpm run fetch
+      - uses: actions/upload-artifact@v3
+        with:
+          name: data
+          path: etl/.data/fetched
+          retention-days: 5
