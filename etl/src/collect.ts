@@ -34,7 +34,8 @@ async function main() {
     let nextWarningId = 1
     let totalProcessed = 0
     let totalAdded = 0
-    for (const file of files) {
+    for (const [fileIndex, file] of files.entries()) {
+      console.log(`[${fileIndex + 1}/${files.length}] Processing ${file}...`)
       try {
         const fileData = JSON.parse(readFileSync(file, 'utf-8'))
         const operations = fileData.results.flatMap((data: any) => {
