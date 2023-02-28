@@ -1,0 +1,10 @@
+{
+  "name": "bkkchangelog-etl",
+  "devDependencies": {
+    "@tsconfig/node18": "^1.0.1",
+    "@types/node": "^18.14.2",
+    "axios": "^1.3.4",
+    "axios-retry": "^3.4.0",
+    "tsx": "^3.12.3"
+  }
+}
