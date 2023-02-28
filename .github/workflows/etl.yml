@@ -17,6 +17,9 @@ jobs:
           cache: pnpm
       - run: pnpm install
       - run: cd etl && pnpm run fetch
+      - run: cd etl && pnpm run collect
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
       - uses: actions/upload-artifact@v3
         with:
           name: data
