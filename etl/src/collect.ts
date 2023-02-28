@@ -30,6 +30,9 @@ async function main() {
     { 'data.ticket_id': 1, updated: 1 },
     { unique: true },
   )
+  await collection.createIndex({ updated: -1 })
+  await collection.createIndex({ state: 1 })
+
   try {
     let nextWarningId = 1
     let totalProcessed = 0
