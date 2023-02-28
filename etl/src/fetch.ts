@@ -24,7 +24,7 @@ async function fetchData(start: string, end: string) {
     const url = `https://publicapi.traffy.in.th/share/teamchadchart/search?limit=1000&last_activity_start=${start}&last_activity_end=${end}&offset=${offset}`
     const response = await axios.get(url)
     const { results, ...info } = response.data
-    const buffer = Buffer.from(JSON.stringify(results))
+    const buffer = Buffer.from(JSON.stringify(response.data))
     console.log(
       '=>',
       JSON.stringify(info),
