@@ -3,7 +3,7 @@ import { globbySync } from 'globby'
 import { z } from 'zod'
 import { AnyBulkWriteOperation, MongoClient } from 'mongodb'
 import { Env } from 'lazy-strict-env'
-import { ConnectFn, getTicketSnapshotsCollection, withDb } from './_db'
+import { ConnectFn, getTicketSnapshotsCollection, TicketSnapshot, withDb } from './_db'
 
 const EntryInfo = z.object({
   ticket_id: z.coerce.string().min(1),
