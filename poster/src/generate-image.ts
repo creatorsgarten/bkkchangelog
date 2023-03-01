@@ -66,12 +66,17 @@ async function generatePng(imageParams: ImageParams) {
     await loadImage(imageParams.before),
     'Before',
     'Comment: ' + imageParams.comment,
+    0,
+    await loadFaces(imageParams.before),
   )
   const after = new FrameImage(
     await loadImage(imageParams.after),
     imageParams.afterType === 'map' ? 'Location' : 'After',
     imageParams.note.trim() ? 'การแก้ไข: ' + imageParams.note.trim() : '',
     imageParams.afterType === 'map' ? 64 : 0,
+    imageParams.afterType === 'map'
+      ? undefined
+      : await loadFaces(imageParams.after),
   )
   const canvasWidth = before.renderWidth + after.renderWidth + 120
   const canvasHeight = 1080
@@ -131,6 +136,54 @@ const loadImage = async (url: string) => {
   }
 }
 
+const faceEnv = Env(
+  z.object({
+    FACE_API_KEY: z.string(),
+    FACE_API_ENDPOINT: z.string(),
+  }),
+)
+const loadFaces = async (imageUrl: string) => {
+  if (!faceEnv.valid) return null
+  const hash = createHash('md5').update(imageUrl).digest('hex')
+  const cachePath = `.data/faces/${hash}.json`
+  if (existsSync(cachePath)) {
+    return JSON.parse(readFileSync(cachePath, 'utf-8'))
+  }
+  const apiUrl =
+    faceEnv.FACE_API_ENDPOINT +
+    'face/v1.0/detect?' +
+    new URLSearchParams({
+      returnFaceId: 'false',
+      recognitionModel: 'recognition_04',
+      detectionModel: 'detection_03',
+    })
+  const res = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Ocp-Apim-Subscription-Key': faceEnv.FACE_API_KEY,
+    },
+    body: JSON.stringify({ url: imageUrl }),
+  })
+  if (!res.ok) {
+    console.error('Face error', await res.text())
+    throw new Error('Face API error ' + res.status)
+  }
+  const data = await res.json()
+  mkdirSync('.data/faces', { recursive: true })
+  writeFileSync(cachePath, JSON.stringify(data, null, 2))
+  return data
+}
+
+interface Face {
+  faceRectangle: {
+    top: number
+    left: number
+    width: number
+    height: number
+  }
+}
+
 class FrameImage {
   renderWidth: number
   renderHeight: number
@@ -140,6 +193,7 @@ class FrameImage {
     private text: string,
     private comment: string,
     private textYOffset: number = 0,
+    private faces: Face[] | undefined,
   ) {
     this.renderHeight = 1000 - 32
     this.renderWidth = Math.round(
@@ -164,6 +218,21 @@ class FrameImage {
       ctx.fillRect(x, y + barHeight, this.renderWidth, this.renderHeight)
       ctx.fillStyle = '#000000'
       ctx.drawImage(this.image, drawX, drawY + barHeight, drawWidth, drawHeight)
+
+      if (this.faces) {
+        for (const face of this.faces) {
+          const faceWidth = face.faceRectangle.width * scale
+          const faceHeight = face.faceRectangle.height * scale
+          const faceX = face.faceRectangle.left * scale + drawX
+          const faceY = face.faceRectangle.top * scale + drawY + barHeight
+          ctx.fillStyle = '#15202b'
+          ctx.fillRect(faceX, faceY, faceWidth, faceHeight)
+          ctx.fillStyle = '#0005'
+          ctx.fillRect(faceX, faceY, faceWidth, Math.min(faceHeight, 2))
+          ctx.fillRect(faceX, faceY, Math.min(faceWidth, 2), faceHeight)
+        }
+      }
+
       ctx.fillStyle = '#273340'
       ctx.fillRect(x, y, this.renderWidth, barHeight)
       ctx.font = '36px default'
