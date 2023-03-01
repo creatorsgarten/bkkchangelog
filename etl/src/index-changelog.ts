@@ -23,6 +23,9 @@ async function main(connect: ConnectFn) {
   await changelog.createIndexes([
     // Search by finish time
     { key: { finished: -1 } },
+
+    // Search by location
+    { key: { location: '2dsphere' } },
   ])
 
   // Get the ticket IDs that have changed in the last 3 days
