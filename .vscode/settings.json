@@ -1,0 +1,10 @@
+{
+  "appService.zipIgnorePattern": [
+    "{,**/}node_modules{,/**}",
+    "{,**/}.vscode{,/**}",
+    "{,**/}.data{,/**}",
+    ".env",
+    ".envrc"
+  ],
+  "appService.deploySubpath": "."
+}
