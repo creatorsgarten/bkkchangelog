@@ -25,4 +25,4 @@ jobs:
         with:
           name: data
           path: etl/.data/fetched
-          retention-days: 5
+          retention-days: 16
