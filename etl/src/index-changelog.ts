@@ -3,6 +3,7 @@ import { z } from 'zod'
 import {
   Changelog,
   ConnectFn,
+  getChangelogCollection,
   getTicketSnapshotsCollection,
   TicketSnapshot,
   withDb,
@@ -18,7 +19,7 @@ const ChangelogEntryInfo = z.object({
 async function main(connect: ConnectFn) {
   const client = await connect()
   const collection = getTicketSnapshotsCollection(client)
-  const changelog = client.db().collection<Changelog>('changelog')
+  const changelog = getChangelogCollection(client)
 
   await changelog.createIndexes([
     // Search by finish time

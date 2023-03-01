@@ -33,7 +33,7 @@ export async function withDb(f: (connect: ConnectFn) => Promise<void>) {
   let client: MongoClient | undefined
   try {
     await f(async () => {
-      client ??= await MongoClient.connect(env.MONGODB_URI)
+      client ??= await connectToDatabase()
       return client
     })
   } finally {
@@ -41,6 +41,13 @@ export async function withDb(f: (connect: ConnectFn) => Promise<void>) {
   }
 }
 
+export async function connectToDatabase(): Promise<MongoClient> {
+  return await MongoClient.connect(env.MONGODB_URI)
+}
+
 export function getTicketSnapshotsCollection(client: MongoClient) {
   return client.db().collection<TicketSnapshot>('ticket_snapshots')
+}
+export function getChangelogCollection(client: MongoClient) {
+  return client.db().collection<Changelog>('changelog')
 }
