@@ -87,12 +87,6 @@ async function main(connect: ConnectFn) {
         )
       if (!m) continue
       const [, subdistrict, district, postcode] = m
-      console.log(
-        ticket._id,
-        finishedAt,
-        lastEntry.data.address,
-        lastEntry.data.coords,
-      )
       const changelog: Changelog = {
         _id: ticket._id,
         finished: finishedAt,
