@@ -47,6 +47,7 @@ importers:
       '@tsconfig/node18': ^1.0.1
       '@types/node': ^18.14.2
       canvaskit-wasm: ^0.38.0
+      fastify: ^4.13.0
       fetch-types: 0.0.1
       jimp: ^0.22.7
       lazy-strict-env: ^0.3.1
@@ -58,6 +59,7 @@ importers:
       '@trpc/client': 10.13.2_@trpc+server@10.13.2
       '@trpc/server': 10.13.2
       canvaskit-wasm: 0.38.0
+      fastify: 4.13.0
       jimp: 0.22.7
       lazy-strict-env: 0.3.1_zod@3.20.6
       mongodb: 5.1.0
