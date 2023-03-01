@@ -25,7 +25,7 @@ A public API is available for accessing small parts of the database. It provides
 ### Query the changelog
 
 ```http
-GET {{baseUrl}}/changelog
+GET {{baseUrl}}/api/getChangelog?input={}
 ```
 
 Returns a list of completed tickets, ordered by time of last completion (when state changed to “เสร็จสิ้น”)
@@ -37,7 +37,7 @@ Returns a list of completed tickets, ordered by time of last completion (when st
 ### Get the history of a ticket
 
 ```http
-GET {{baseUrl}}/tickets/2022-NNRWCZ
+GET {{baseUrl}}/api/getTicketSnapshots?input={"id":"2022-NNRWCZ"}
 ```
 
 Returns the history of a ticket.
