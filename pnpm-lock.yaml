@@ -33,6 +33,23 @@ importers:
       '@tsconfig/node18': 1.0.1
       '@types/node': 18.14.2
 
+  poster:
+    specifiers:
+      '@tsconfig/node18': ^1.0.1
+      '@types/node': ^18.14.2
+      lazy-strict-env: ^0.3.1
+      mongodb: ^5.1.0
+      tsx: ^3.12.3
+      zod: ^3.20.6
+    dependencies:
+      lazy-strict-env: 0.3.1_zod@3.20.6
+      mongodb: 5.1.0
+      tsx: 3.12.3
+      zod: 3.20.6
+    devDependencies:
+      '@tsconfig/node18': 1.0.1
+      '@types/node': 18.14.2
+
 packages:
 
   /@babel/runtime/7.21.0:

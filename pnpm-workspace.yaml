@@ -1,2 +1,3 @@
 packages:
-  - "./etl"
+  - './etl'
+  - './poster'
