@@ -1,5 +1,6 @@
 import { parseArgs } from 'util'
 import { ConnectFn, getTicketSnapshotsCollection, withDb } from './_db'
+import { mkdirSync, writeFileSync } from 'fs'
 
 async function main(connect: ConnectFn) {
   const { positionals } = parseArgs({ allowPositionals: true })
@@ -17,6 +18,9 @@ async function main(connect: ConnectFn) {
       .find({ 'data.ticket_id': positionals[0] })
       .toArray()
     console.log(JSON.stringify(records, null, 2))
+    const path = `.data/tickets/${positionals[0]}.json`
+    mkdirSync('.data/tickets', { recursive: true })
+    writeFileSync(path, JSON.stringify(records, null, 2))
   } finally {
     await client.close()
   }

@@ -2,9 +2,13 @@
   "name": "bkkchangelog-poster",
   "devDependencies": {
     "@tsconfig/node18": "^1.0.1",
-    "@types/node": "^18.14.2"
+    "@types/node": "^18.14.2",
+    "fetch-types": "0.0.1"
   },
   "dependencies": {
+    "@fontsource/sarabun": "^4.5.9",
+    "canvaskit-wasm": "^0.38.0",
+    "jimp": "^0.22.7",
     "lazy-strict-env": "^0.3.1",
     "mongodb": "^5.1.0",
     "tsx": "^3.12.3",
