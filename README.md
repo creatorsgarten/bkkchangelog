@@ -23,7 +23,7 @@ A public API is available for accessing small parts of the database. It provides
 ### Query the changelog
 
 ```http
-GET {{baseUrl}}/changelog?sort=asc&since=2023-02-28T17:00:00Z
+GET {{baseUrl}}/changelog
 ```
 
 Returns a list of completed tickets, ordered by time of last completion (when state changed to “เสร็จสิ้น”)

@@ -4,6 +4,8 @@ on:
     branches:
       - main
       - azure
+    paths-ignore:
+      - README.md
 
 jobs:
   build-and-deploy:
