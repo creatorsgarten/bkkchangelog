@@ -4,7 +4,7 @@ A project to archive and generate a change log based on [Traffy Fondue](https://
 
 ## Archiving
 
-We continuously [archive](https://github.com/creatorsgarten/bkkchangelog/actions/workflows/etl.yml) the recently-updated tickets into a MongoDB database. The database contains not only the latest ticket data, but also the history at various points in time. This allows us to generate a change log. Note, only tickets that contain a `ticket_id` are archived.
+We continuously [archive](https://github.com/creatorsgarten/bkkchangelog/actions/workflows/etl.yml) the recently-updated tickets into a MongoDB database. The database is hosted on [Ruk-Com Cloud PaaS](https://ruk-com.cloud/). The database contains not only the latest ticket data, but also the history at various points in time. This allows us to generate a change log. Note, only tickets that contain a `ticket_id` are archived.
 
 ## Backups
 
