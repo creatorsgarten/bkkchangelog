@@ -10,6 +10,10 @@ import {
   getTicketSnapshotsCollection,
 } from './_db'
 import { z } from 'zod'
+import {
+  OperationMeta,
+  generateOpenAPIDocumentFromTRPCRouter,
+} from 'openapi-trpc'
 
 const dbPromise = connectToDatabase()
 
@@ -21,7 +25,10 @@ server.get('/', async (request, reply) => {
   return { name: 'bkkchangelog' }
 })
 
-export const t = initTRPC.context<FastifyRequest>().create()
+export const t = initTRPC
+  .meta<OperationMeta>()
+  .context<FastifyRequest>()
+  .create()
 
 export const appRouter = t.router({
   getChangelog: t.procedure
@@ -91,6 +98,35 @@ export const appRouter = t.router({
 })
 
 export type AppRouter = typeof appRouter
+
+const doc = generateOpenAPIDocumentFromTRPCRouter(appRouter, {
+  pathPrefix: '/api',
+})
+
+server.get('/api.json', async (request, reply) => {
+  return doc
+})
+
+server.get('/api', async (request, reply) => {
+  reply.header('Content-Type', 'text/html')
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="SwaggerUI" />
+    <title>SwaggerUI</title>
+    <link href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.15.5/swagger-ui.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.15.5/swagger-ui-bundle.js"></script>
+    <script>
+      window.onload = () => { window.ui = SwaggerUIBundle({ url: '/api.json', dom_id: '#swagger-ui' }) }
+    </script>
+  </body>
+</html>`
+})
 
 server.register(fastifyTRPCPlugin, {
   prefix: '/api',

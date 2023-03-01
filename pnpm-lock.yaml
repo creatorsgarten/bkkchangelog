@@ -21,6 +21,7 @@ importers:
       globby: ^13.1.3
       lazy-strict-env: ^0.3.1
       mongodb: ^5.1.0
+      openapi-trpc: ^0.1.1
       tsx: ^3.12.3
       zod: ^3.20.6
     dependencies:
@@ -31,6 +32,7 @@ importers:
       globby: 13.1.3
       lazy-strict-env: 0.3.1_zod@3.20.6
       mongodb: 5.1.0
+      openapi-trpc: 0.1.1_mhxzd672iwy7f7c3blllaz3ava
       tsx: 3.12.3
       zod: 3.20.6
     devDependencies:
@@ -1332,6 +1334,22 @@ packages:
     resolution: {integrity: sha512-VuCaZZAjReZ3vUwgOB8LxAosIurDiAW0s13rI1YwmaP++jvcxP77AWoQvenZebpCA2m8WC1/EosPYPMjnRAp/w==}
     dev: false
 
+  /openapi-trpc/0.1.1_mhxzd672iwy7f7c3blllaz3ava:
+    resolution: {integrity: sha512-jyQ+pSq4uCeL2AKcQkbDHbsCX7jqkWwD5r4YSkuRzjCVSAc4+XUcBqi/HQ48RN1DGHKS69Kgdo3+oDrbit9UoQ==}
+    peerDependencies:
+      '@trpc/server': ^10.11.1
+      zod: ^3.20.6
+    dependencies:
+      '@trpc/server': 10.13.2
+      openapi-types: 12.1.0
+      zod: 3.20.6
+      zod-to-json-schema: 3.20.4_zod@3.20.6
+    dev: false
+
+  /openapi-types/12.1.0:
+    resolution: {integrity: sha512-XpeCy01X6L5EpP+6Hc3jWN7rMZJ+/k1lwki/kTmWzbVhdPie3jd5O2ZtedEx8Yp58icJ0osVldLMrTB/zslQXA==}
+    dev: false
+
   /pako/1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
     dev: false
@@ -1831,6 +1849,14 @@ packages:
 
   /yallist/4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
+    dev: false
+
+  /zod-to-json-schema/3.20.4_zod@3.20.6:
+    resolution: {integrity: sha512-Un9+kInJ2Zt63n6Z7mLqBifzzPcOyX+b+Exuzf7L1+xqck9Q2EPByyTRduV3kmSPaXaRer1JCsucubpgL1fipg==}
+    peerDependencies:
+      zod: ^3.20.0
+    dependencies:
+      zod: 3.20.6
     dev: false
 
   /zod/3.20.6:
