@@ -29,7 +29,7 @@ async function main(connect: ConnectFn) {
   const FINISHED = 'เสร็จสิ้น'
   const ticketIds = await collection
     .aggregate([
-      { $match: { updated: { $gte: new Date(Date.now() - 14 * 86400e3) } } },
+      { $match: { updated: { $gte: new Date(Date.now() - 3 * 86400e3) } } },
       { $match: { 'data.state': FINISHED } },
       { $group: { _id: '$data.ticket_id' } },
     ])
