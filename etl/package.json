@@ -16,6 +16,7 @@
   "scripts": {
     "backup": "tsx src/backup.ts",
     "fetch": "tsx src/fetch.ts",
+    "index-changelog": "tsx src/index-changelog.ts",
     "collect": "tsx src/collect.ts"
   }
 }

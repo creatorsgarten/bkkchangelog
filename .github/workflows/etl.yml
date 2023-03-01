@@ -20,6 +20,9 @@ jobs:
       - run: cd etl && pnpm run collect
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      - run: cd etl && pnpm run index-changelog
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
       - uses: actions/upload-artifact@v3
         if: always()
         with:

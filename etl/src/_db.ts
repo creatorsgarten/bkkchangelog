@@ -1,5 +1,5 @@
 import { Env } from 'lazy-strict-env'
-import { MongoClient } from 'mongodb'
+import { MongoClient, ObjectId } from 'mongodb'
 import { z } from 'zod'
 
 const env = Env(
@@ -11,6 +11,20 @@ const env = Env(
 export interface TicketSnapshot {
   data: any
   updated: Date
+}
+
+export interface Changelog {
+  /** _id is the ticket ID */
+  _id: string
+  /** The time that we detect the ticket transitioned into a finished state */
+  finished: Date
+
+  district: string
+  subdistrict: string
+  postcode: string
+  location: { type: 'Point'; coordinates: [number, number] }
+  ticketSnapshotId: ObjectId
+  problemTypes: string[]
 }
 
 export type ConnectFn = () => Promise<MongoClient>
