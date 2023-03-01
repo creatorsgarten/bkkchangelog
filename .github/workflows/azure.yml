@@ -6,6 +6,7 @@ on:
       - azure
     paths-ignore:
       - README.md
+      - poster/**
 
 jobs:
   build-and-deploy:

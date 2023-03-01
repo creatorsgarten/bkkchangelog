@@ -12,6 +12,8 @@ The database is [backed up](https://github.com/creatorsgarten/bkkchangelog/actio
 
 ## API
 
+:construction: Note, the API is currently **very unstable**. There may be breaking changes at any time. :construction:
+
 A public API is available for accessing small parts of the database. It provides an API to access the change log in chronological order, as well as an API to find the history of a single ticket. Note that it is hosted on a free [Azure App Service](https://azure.microsoft.com/en-us/products/app-service) instance which can be unstable. For use cases beyond these simple queries, you should probably download the database dump and run your own queries.
 
 ```http
