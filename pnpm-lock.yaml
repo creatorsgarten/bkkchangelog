@@ -40,6 +40,8 @@ importers:
   poster:
     specifiers:
       '@fontsource/sarabun': ^4.5.9
+      '@trpc/client': ^10.13.2
+      '@trpc/server': ^10.13.2
       '@tsconfig/node18': ^1.0.1
       '@types/node': ^18.14.2
       canvaskit-wasm: ^0.38.0
@@ -51,6 +53,8 @@ importers:
       zod: ^3.20.6
     dependencies:
       '@fontsource/sarabun': 4.5.9
+      '@trpc/client': 10.13.2_@trpc+server@10.13.2
+      '@trpc/server': 10.13.2
       canvaskit-wasm: 0.38.0
       jimp: 0.22.7
       lazy-strict-env: 0.3.1_zod@3.20.6
@@ -686,6 +690,14 @@ packages:
 
   /@tokenizer/token/0.3.0:
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
+    dev: false
+
+  /@trpc/client/10.13.2_@trpc+server@10.13.2:
+    resolution: {integrity: sha512-iEZOAYS/Ak5T6j2lrN2NCYYLb8YY9sbj4JJR9VgxDL8Cz1dRFpFZ2BA4VwNW6xoh0G+MRdSGvivTYdggbJ4BBg==}
+    peerDependencies:
+      '@trpc/server': 10.13.2
+    dependencies:
+      '@trpc/server': 10.13.2
     dev: false
 
   /@trpc/server/10.13.2:
