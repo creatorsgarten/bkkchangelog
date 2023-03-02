@@ -6,7 +6,6 @@
     "fetch-types": "0.0.1"
   },
   "dependencies": {
-    "@fontsource/sarabun": "^4.5.9",
     "@trpc/client": "^10.13.2",
     "@trpc/server": "^10.13.2",
     "canvaskit-wasm": "^0.38.0",
@@ -19,8 +18,7 @@
     "zod": "^3.20.6"
   },
   "scripts": {
-    "get-ticket": "tsx src/get-ticket.ts",
-    "generate-image": "tsx src/generate-image.ts",
+    "generate": "tsx src/generate.ts",
     "start": "tsx src/server.ts"
   },
   "engines": {
