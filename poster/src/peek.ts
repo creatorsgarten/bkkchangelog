@@ -10,8 +10,7 @@ async function main(connect: ConnectFn) {
     console.log('No changelog entry found')
     return
   }
-  const snapshots = await client.getTicketSnapshots.query({ id: entry._id })
-  console.log(getTweet(entry, snapshots.results))
+  console.log(await getTweet(entry))
 }
 
 withDb(main)

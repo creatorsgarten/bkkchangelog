@@ -18,7 +18,7 @@ async function main() {
   const entry = await client.changelogEntries.get.query({ id })
   const { results: snapshots } = await client.ticketSnapshots.list.query({ id })
   snapshots.sort((a: any, b: any) => (a.updated < b.updated ? -1 : 1))
-  const tweet = getTweet(entry, snapshots)
+  const tweet = await getTweet(entry)
   console.log(tweet)
   const image = await generateImage(entry.snapshot)
   const imagePath = `.data/output/${id}.jpg`

@@ -58,8 +58,7 @@ export async function workOnNextTask(
   const collection = getTweetTaskCollection(mongo)
   log(`Got changelog entry: ${entry._id} (finished at ${entry?.finished})`)
   const lib = require('lib')({ token: stdlibEnv.STDLIB_SECRET_TOKEN })
-  const snapshots = await client.getTicketSnapshots.query({ id: entry._id })
-  const tweet = getTweet(entry, snapshots.results)
+  const tweet = await getTweet(entry)
   log('Generated tweet: ' + JSON.stringify(tweet))
   try {
     await collection.updateOne(

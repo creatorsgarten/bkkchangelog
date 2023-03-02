@@ -3,11 +3,11 @@ import { client } from './_api'
 type ChangelogEntry = Awaited<
   ReturnType<typeof client.getChangelog.query>
 >['results'][number]
-type Snapshot = Awaited<
-  ReturnType<typeof client.getTicketSnapshots.query>
->['results'][number]
 
-export function getTweet(entry: ChangelogEntry, snapshots: Snapshot[]) {
+export async function getTweet(entry: ChangelogEntry) {
+  const { results: snapshots } = await client.getTicketSnapshots.query({
+    id: entry._id,
+  })
   let lastStatus = 'รอรับเรื่อง'
   snapshots.sort((a, b) => (a.updated < b.updated ? -1 : 1))
   const log: string[] = []
