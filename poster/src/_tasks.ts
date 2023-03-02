@@ -16,22 +16,40 @@ const stdlibEnv = Env(
   }),
 )
 
-export async function getNextChangelogEntry(mongo: MongoClient) {
+export async function getNextChangelogEntry(
+  mongo: MongoClient,
+  log: (message: string) => void = console.log,
+) {
   const state = (await getStateCollection(mongo).findOne({ _id: 'state' })) || {
     _id: 'state',
   }
   const nextSince = state.nextSince?.getTime() || 0
-  const todayUtc = new Date().toISOString().split('T')[0]
   const since = Math.max(
     Date.now() - 3 * 86400e3,
     Date.parse('2023-02-27T17:00:00Z'),
     nextSince,
   )
+
+  const today = new Date(Date.now() + 7 * 3600e3).toISOString().split('T')[0]
+  const until = Date.parse(today + 'T00:00:00Z') - 7 * 3600e3
+  const endOfDay = until + 86400e3
   const data = await client.getChangelog.query({
     since: new Date(since).toISOString(),
+    until: new Date(until).toISOString(),
     sort: 'asc',
   })
+  const timeLeft = Math.max(1, endOfDay - Date.now())
+  const timePerTweet = Math.round(timeLeft / Math.max(1, data.total))
+  log(
+    `Got ${data.total} changelog entries in scope, ${timePerTweet}ms per tweet`,
+  )
+  const lastTweetedAt = state.lastTweetedAt?.getTime() || 0
   const collection = getTweetTaskCollection(mongo)
+  const timeUntilNextTweet = lastTweetedAt + timePerTweet - 32e3 - Date.now()
+  if (timeUntilNextTweet > 0) {
+    log(`Gonna wait for ${timeUntilNextTweet}ms, so doing nothing for now`)
+    return
+  }
   let nextNextSince = nextSince
   try {
     for (const item of data.results) {

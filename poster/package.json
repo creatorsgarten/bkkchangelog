@@ -3,7 +3,8 @@
   "devDependencies": {
     "@tsconfig/node18": "^1.0.1",
     "@types/node": "^18.14.2",
-    "fetch-types": "0.0.1"
+    "fetch-types": "0.0.1",
+    "tsup": "^6.6.3"
   },
   "dependencies": {
     "@trpc/client": "^10.13.2",
