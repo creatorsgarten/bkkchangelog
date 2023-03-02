@@ -10,17 +10,24 @@ export async function getTweet(entry: ChangelogEntry) {
   })
   const finishedAt = entry.finished
   const finishedDate = toAsiaBangkokDate(Date.parse(finishedAt))
+
+  const useNewVersion = finishedDate >= '2023-03-01'
+  const threadId = useNewVersion ? finishedDate + '-' + entry.district : null
+
   const dateStartUtc = Date.parse(finishedDate + 'T00:00:00Z')
   const dateStartAsiaBangkok = dateStartUtc - 7 * 3600e3
   const dateEndAsiaBangkok = dateStartAsiaBangkok + 86400e3
+
   const { totalBeforeUntil: todayTotal } =
     await client.changelogEntries.count.query({
       since: new Date(dateStartAsiaBangkok).toISOString(),
       until: new Date(dateEndAsiaBangkok).toISOString(),
+      ...(useNewVersion ? { district: entry.district } : {}),
     })
   const countData = await client.changelogEntries.count.query({
     since: new Date(dateStartAsiaBangkok).toISOString(),
     until: finishedAt,
+    ...(useNewVersion ? { district: entry.district } : {}),
   })
   const todayNumber =
     countData.totalBeforeUntil +
@@ -45,22 +52,34 @@ export async function getTweet(entry: ChangelogEntry) {
   }
 
   const finishThaiDate = formatDate(Date.parse(finishedAt))
-  const text = [
-    `${finishThaiDate} (${todayNumber}/${todayTotal})`,
-    `#แขวง${entry.subdistrict} #เขต${entry.district}${entry.problemTypes
-      .filter((x) => x.trim())
-      .map((x) => ` #${x}`)
-      .join('')}`,
-    log.join('\n'),
-    `#${entry._id}`,
-    '',
-    String((entry.snapshot as any).data.address)
-      .replace(/กรุงเทพมหานคร\s+\d+\s+ประเทศไทย/, '')
-      .replace(/(แขวง|เขต|ซอย)\s+/g, '$1')
-      .trim() + ` กทม. ${entry.postcode}`,
-  ]
-    .join('\n')
-    .slice(0, 240)
+  const typeTags = entry.problemTypes
+    .filter((x) => x.trim())
+    .map((x) => ` #${x}`)
+    .join('')
+  const lines = useNewVersion
+    ? [
+        `#เขต${entry.district} ${finishThaiDate} (${todayNumber}/${todayTotal})`,
+        `#แขวง${entry.subdistrict}${typeTags}`,
+        log.join('\n'),
+        `#${entry._id}`,
+        '',
+        String((entry.snapshot as any).data.address)
+          .replace(/กรุงเทพมหานคร\s+\d+\s+ประเทศไทย/, '')
+          .replace(/(แขวง|เขต|ซอย)\s+/g, '$1')
+          .trim() + ` กทม. ${entry.postcode}`,
+      ]
+    : [
+        `${finishThaiDate} (${todayNumber}/${todayTotal})`,
+        `#แขวง${entry.subdistrict} #เขต${entry.district}${typeTags}`,
+        log.join('\n'),
+        `#${entry._id}`,
+        '',
+        String((entry.snapshot as any).data.address)
+          .replace(/กรุงเทพมหานคร\s+\d+\s+ประเทศไทย/, '')
+          .replace(/(แขวง|เขต|ซอย)\s+/g, '$1')
+          .trim() + ` กทม. ${entry.postcode}`,
+      ]
+  const text = lines.join('\n').slice(0, 240)
   return {
     ticketId: entry._id,
     tweet: {
@@ -68,6 +87,7 @@ export async function getTweet(entry: ChangelogEntry) {
       lat: entry.location.coordinates[1],
       long: entry.location.coordinates[0],
     },
+    threadId,
   }
 }
 
