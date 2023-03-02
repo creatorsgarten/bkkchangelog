@@ -1,9 +1,10 @@
 import 'fetch-types'
-import { mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { mkdirSync, writeFileSync } from 'fs'
 import { parseArgs } from 'util'
 import { generateImage } from './_image'
 import { client } from './_api'
 import { getTweet } from './_tweet'
+import { resolve } from 'path'
 
 async function main() {
   const { positionals } = parseArgs({ allowPositionals: true })
@@ -23,7 +24,7 @@ async function main() {
   const imagePath = `.data/output/${id}.jpg`
   mkdirSync('.data/output', { recursive: true })
   writeFileSync(imagePath, image)
-  console.log(imagePath)
+  console.log(resolve(imagePath))
 }
 
 main()

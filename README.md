@@ -12,32 +12,27 @@ The database is [backed up](https://github.com/creatorsgarten/bkkchangelog/actio
 
 ## API
 
+A [public API](https://bkkchangelog.azurewebsites.net/api) is available for accessing small parts of the database. It provides an API to access the change log in chronological order, as well as an API to find the history of a single ticket. Note that it is hosted on a free [Azure App Service](https://azure.microsoft.com/en-us/products/app-service) instance which can be unstable. For use cases beyond these simple queries, you should probably download the database dump and run your own queries.
+
 :construction: Note, the API is currently **very unstable**. There may be breaking changes at any time. :construction:
 
-A public API is available for accessing small parts of the database. It provides an API to access the change log in chronological order, as well as an API to find the history of a single ticket. Note that it is hosted on a free [Azure App Service](https://azure.microsoft.com/en-us/products/app-service) instance which can be unstable. For use cases beyond these simple queries, you should probably download the database dump and run your own queries.
+## Image and tweet generation
 
-```http
-@baseUrl = https://bkkchangelog.azurewebsites.net
+First, install dependencies:
+
+```sh
+pnpm install
 ```
 
-**Tip:** In Visual Studio Code, the [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension can be used to try out the below API calls.
+Then run the `generate` script in the `poster` workspace:
 
-### Query the changelog
-
-```http
-GET {{baseUrl}}/api/getChangelog?input={}
+```sh
+pnpm -C poster run generate 2022-NNRWCZ
 ```
 
-Returns a list of completed tickets, ordered by time of last completion (when state changed to “เสร็จสิ้น”)
+It will print the tweet text and the image path.
 
-- `sort` - `asc` or `desc` (default: `desc`)
-- `since` - ISO 8601 timestamp (default: `2021-01-01T00:00:00Z`)
-- `until` - ISO 8601 timestamp (default: `now`)
+**For contributors:** To customize...
 
-### Get the history of a ticket
-
-```http
-GET {{baseUrl}}/api/getTicketSnapshots?input={"id":"2022-NNRWCZ"}
-```
-
-Returns the history of a ticket.
+- The tweet text, edit [`poster/src/_tweet.ts`](poster/src/_tweet.ts).
+- The image, edit [`poster/src/_image.ts`](poster/src/_image.ts).

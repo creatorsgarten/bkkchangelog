@@ -6,6 +6,7 @@ type ChangelogEntry = Awaited<
 type Snapshot = Awaited<
   ReturnType<typeof client.getTicketSnapshots.query>
 >['results'][number]
+
 export function getTweet(entry: ChangelogEntry, snapshots: Snapshot[]) {
   let lastStatus = 'รอรับเรื่อง'
   snapshots.sort((a, b) => (a.updated < b.updated ? -1 : 1))
