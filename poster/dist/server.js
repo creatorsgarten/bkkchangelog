@@ -400,18 +400,30 @@ async function getNextChangelogEntry(mongo, log = console.log) {
     Date.parse("2023-02-27T17:00:00Z"),
     nextSince
   );
-  const today = new Date(Date.now() + 7 * 36e5).toISOString().split("T")[0];
-  const until = Date.parse(today + "T00:00:00Z") - 7 * 36e5;
-  const endOfDay = until + 864e5;
-  const data = await client.getChangelog.query({
+  const todayAmericaSaoPaulo = new Date(Date.now() - 3 * 36e5).toISOString().split("T")[0];
+  const todayAsiaBangkok = new Date(Date.now() + 7 * 36e5).toISOString().split("T")[0];
+  const until = Date.parse(todayAmericaSaoPaulo + "T00:00:00Z") - 7 * 36e5;
+  const endOfDay = Date.parse(todayAsiaBangkok + "T00:00:00Z") - 7 * 36e5 + 864e5;
+  log(
+    `Looking for changes between ${new Date(since).toISOString()} and ${new Date(until).toISOString()}...`
+  );
+  const data = await client.changelogEntries.list.query({
     since: new Date(since).toISOString(),
     until: new Date(until).toISOString(),
     sort: "asc"
   });
+  const afterUntil = await client.changelogEntries.count.query({
+    since: new Date(until).toISOString(),
+    until: (/* @__PURE__ */ new Date()).toISOString()
+  });
   const timeLeft = Math.max(1, endOfDay - Date.now());
   const timePerTweet = Math.round(timeLeft / Math.max(1, data.total));
+  const timeLeftHours = (timeLeft / 36e5).toFixed(2);
   log(
-    `Got ${data.total} changelog entries in scope, ${timePerTweet}ms per tweet`
+    `Got ${data.total} changelog entries in scope to be posted in ${timeLeftHours}h -- that is ${timePerTweet}ms per tweet`
+  );
+  log(
+    `After that, there are ${afterUntil.totalBeforeUntil} entries to waiting to be scheduled on the next day`
   );
   const lastTweetedAt = state.lastTweetedAt?.getTime() || 0;
   const collection = getTweetTaskCollection(mongo);
@@ -440,7 +452,7 @@ async function getNextChangelogEntry(mongo, log = console.log) {
   }
 }
 async function workOnNextTask(mongo, log = console.log) {
-  const entry = await getNextChangelogEntry(mongo);
+  const entry = await getNextChangelogEntry(mongo, log);
   if (!entry) {
     log("No changelog entry found");
     return;
