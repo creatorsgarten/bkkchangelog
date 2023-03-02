@@ -30,6 +30,11 @@ export const t = initTRPC
   .context<FastifyRequest>()
   .create()
 
+const parseDate = (value?: string) => {
+  const date = value ? new Date(value) : null
+  return date && !isNaN(date.getTime()) ? date : null
+}
+
 export const appRouter = t.router({
   getChangelog: t.procedure
     .input(
@@ -43,10 +48,6 @@ export const appRouter = t.router({
       const client = await dbPromise
       const snapshots = getTicketSnapshotsCollection(client)
       const changelog = getChangelogCollection(client)
-      const parseDate = (value?: string) => {
-        const date = value ? new Date(value) : null
-        return date && !isNaN(date.getTime()) ? date : null
-      }
       const since = parseDate(input.since)
       const until = parseDate(input.until)
       const filter =
@@ -79,6 +80,29 @@ export const appRouter = t.router({
       })
       const total = await totalPromise
       return { total, results }
+    }),
+
+  countChangelogEntries: t.procedure
+    .input(
+      z.object({
+        since: z.string().datetime(),
+        until: z.string().datetime(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const client = await dbPromise
+      const changelog = getChangelogCollection(client)
+      const totalBeforeUntilPromise = changelog.countDocuments({
+        finished: { $gte: new Date(input.since), $lt: new Date(input.until) },
+      })
+      const idsOnUntilPromise = changelog
+        .find({ finished: new Date(input.until) }, { projection: { _id: 1 } })
+        .toArray()
+        .then((results) => results.map((result) => result._id))
+      return {
+        totalBeforeUntil: await totalBeforeUntilPromise,
+        idsOnUntil: await idsOnUntilPromise,
+      }
     }),
 
   getTicketSnapshots: t.procedure
