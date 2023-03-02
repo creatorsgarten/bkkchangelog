@@ -40,15 +40,27 @@ export async function getNextChangelogEntry(
   const today = new Date(Date.now() + 7 * 3600e3).toISOString().split('T')[0]
   const until = Date.parse(today + 'T00:00:00Z') - 7 * 3600e3
   const endOfDay = until + 86400e3
-  const data = await client.getChangelog.query({
+  log(
+    `Looking for changes between ${new Date(since).toISOString()} ` +
+      `and ${new Date(until).toISOString()}...`,
+  )
+  const data = await client.changelogEntries.list.query({
     since: new Date(since).toISOString(),
     until: new Date(until).toISOString(),
     sort: 'asc',
   })
+  const afterUntil = await client.changelogEntries.count.query({
+    since: new Date(until).toISOString(),
+    until: new Date().toISOString(),
+  })
   const timeLeft = Math.max(1, endOfDay - Date.now())
   const timePerTweet = Math.round(timeLeft / Math.max(1, data.total))
+  const timeLeftHours = (timeLeft / 3600e3).toFixed(2)
   log(
-    `Got ${data.total} changelog entries in scope, ${timePerTweet}ms per tweet`,
+    `Got ${data.total} changelog entries in scope to be posted in ${timeLeftHours}h -- that is ${timePerTweet}ms per tweet`,
+  )
+  log(
+    `After that, there are ${afterUntil.totalBeforeUntil} entries to waiting to be scheduled on the next day`,
   )
   const lastTweetedAt = state.lastTweetedAt?.getTime() || 0
   const collection = getTweetTaskCollection(mongo)
@@ -85,7 +97,7 @@ export async function workOnNextTask(
   mongo: MongoClient,
   log: (message: string) => void = console.log,
 ) {
-  const entry = await getNextChangelogEntry(mongo)
+  const entry = await getNextChangelogEntry(mongo, log)
   if (!entry) {
     log('No changelog entry found')
     return
