@@ -41,6 +41,7 @@ const getChangelog = t.procedure
       sort: z.enum(['asc', 'desc']).default('desc'),
       since: z.string().datetime().optional(),
       until: z.string().datetime().optional(),
+      district: z.string().optional(),
     }),
   )
   .query(async ({ input }) => {
@@ -49,15 +50,17 @@ const getChangelog = t.procedure
     const changelog = getChangelogCollection(client)
     const since = parseDate(input.since)
     const until = parseDate(input.until)
-    const filter =
-      since || until
+    const filter = {
+      ...(since || until
         ? {
             finished: {
               ...(since ? { $gte: since } : {}),
               ...(until ? { $lte: until } : {}),
             },
           }
-        : {}
+        : {}),
+      ...(input.district ? { district: input.district } : {}),
+    }
     let cursor = changelog
       .find(filter)
       .sort({ finished: input.sort === 'asc' ? 1 : -1 })
@@ -131,6 +134,7 @@ export const appRouter = t.router({
         z.object({
           since: z.string().datetime(),
           until: z.string().datetime(),
+          district: z.string().optional(),
         }),
       )
       .query(async ({ input }) => {
@@ -138,6 +142,7 @@ export const appRouter = t.router({
         const changelog = getChangelogCollection(client)
         const totalBeforeUntilPromise = changelog.countDocuments({
           finished: { $gte: new Date(input.since), $lt: new Date(input.until) },
+          ...(input.district ? { district: input.district } : {}),
         })
         const idsOnUntilPromise = changelog
           .find({ finished: new Date(input.until) }, { projection: { _id: 1 } })

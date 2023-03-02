@@ -25,6 +25,9 @@ async function main(connect: ConnectFn) {
     // Search by finish time
     { key: { finished: -1 } },
 
+    // Search by finish time, in a district
+    { key: { district: 1, finished: 1 } },
+
     // Search by location
     { key: { location: '2dsphere' } },
   ])
