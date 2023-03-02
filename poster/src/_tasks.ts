@@ -9,6 +9,13 @@ import { getTweet } from './_tweet'
 import { generateImage } from './_image'
 import { Env } from 'lazy-strict-env'
 import { z } from 'zod'
+import { fork } from 'child_process'
+
+let forkMode = false
+
+export function enableForkMode() {
+  forkMode = true
+}
 
 const stdlibEnv = Env(
   z.object({
@@ -106,7 +113,9 @@ export async function workOnTask(
       { $set: { status: 'pending' } },
       { upsert: true },
     )
-    const image = await generateImage(entry.snapshot)
+    const image = forkMode
+      ? await generateImageWithFork(entry.snapshot)
+      : await generateImage(entry.snapshot)
     log('Generated image, number of bytes: ' + image.length)
     const media = await lib.twitter.media['@1.1.0'].upload.simple({
       media: image,
@@ -151,4 +160,37 @@ export async function workOnTask(
     )
     throw error
   }
+}
+
+const generateImageWithFork: typeof generateImage = async (snapshot) => {
+  const child = fork(__filename, ['--generate-image'], {
+    timeout: 30e3,
+    serialization: 'advanced',
+  })
+  return new Promise((resolve, reject) => {
+    child.on('message', (message: any) => {
+      if (message.result) {
+        resolve(message.result)
+      } else if (message.error) {
+        reject(new Error('Error from child process: ' + message.error))
+      }
+    })
+    child.on('error', (error: any) => {
+      reject(error)
+    })
+    child.send({ snapshot })
+  })
+}
+
+export async function forkGenerateImageWorker() {
+  process.on('message', async (message: any) => {
+    if (message.snapshot) {
+      try {
+        const result = await generateImage(message.snapshot)
+        process.send!({ result })
+      } catch (error: any) {
+        process.send!({ error: String(error?.stack || error) })
+      }
+    }
+  })
 }

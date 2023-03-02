@@ -20,7 +20,8 @@
   },
   "scripts": {
     "generate": "tsx src/generate.ts",
-    "start": "tsx src/server.ts"
+    "start": "node dist/server.js",
+    "build": "tsup src/server.ts"
   },
   "engines": {
     "node": "18.x"

@@ -1,4 +1,7 @@
-import createCanvasKit, { EmulatedCanvas2DContext } from 'canvaskit-wasm'
+import createCanvasKit, {
+  CanvasKit,
+  EmulatedCanvas2DContext,
+} from 'canvaskit-wasm'
 import fs, { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import Jimp from 'jimp'
 import { resolve } from 'path'
@@ -6,15 +9,22 @@ import { createHash } from 'crypto'
 import { Env } from 'lazy-strict-env'
 import { z } from 'zod'
 
-const canvasKitPromise = createCanvasKit({
-  locateFile: (file) => resolve(require.resolve('canvaskit-wasm'), '..', file),
-})
+let _canvasKitPromise: Promise<CanvasKit> | undefined
+function getCanvasKit() {
+  _canvasKitPromise ??= createCanvasKit({
+    locateFile: (file) =>
+      resolve(require.resolve('canvaskit-wasm'), '..', file),
+  })
+  return _canvasKitPromise
+}
+
 const fontData = fs.readFileSync(require.resolve('../vendor/tf_uthong.ttf'))
 const mapboxEnv = Env(
   z.object({
     MAPBOX_URL_TEMPLATE: z.string(),
   }),
 )
+
 export async function generateImage(snapshot: any) {
   const getMapBoxImage = () => {
     const coords = snapshot.data.coords.join(',')
@@ -41,7 +51,7 @@ async function generateJpeg(imageParams: ImageParams) {
 }
 
 async function generatePng(imageParams: ImageParams) {
-  const canvasKit = await canvasKitPromise
+  const canvasKit = await getCanvasKit()
   const before = new FrameImage(
     await loadImage(imageParams.before),
     'Before',
@@ -93,7 +103,11 @@ interface ImageParams {
   note: string
   afterType: 'photo' | 'map'
 }
-const imageLoaderPromise = canvasKitPromise.then((c) => c.MakeCanvas(1, 1))
+let _imageLoaderPromise: Promise<EmulatedCanvas2DContext> | undefined
+function getImageLoader() {
+  _imageLoaderPromise ??= getCanvasKit().then((c) => c.MakeCanvas(1, 1))
+  return _imageLoaderPromise
+}
 const loadImage = async (url: string) => {
   // const cachePath = `.data/images/${url.split('/').pop()}`
   const hash = createHash('md5').update(url).digest('hex')
@@ -101,7 +115,7 @@ const loadImage = async (url: string) => {
   const buffer = existsSync(cachePath)
     ? readFileSync(cachePath)
     : Buffer.from(await fetch(url).then((res) => res.arrayBuffer()))
-  const imageLoader = await imageLoaderPromise
+  const imageLoader = await getImageLoader()
   const image = imageLoader.decodeImage(buffer)
   if (!existsSync(cachePath)) {
     mkdirSync('.data/images', { recursive: true })
