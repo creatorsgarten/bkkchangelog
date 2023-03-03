@@ -35,13 +35,47 @@ const parseDate = (value?: string) => {
   return date && !isNaN(date.getTime()) ? date : null
 }
 
+const geoCoordinates = z.tuple([
+  z.number().min(100).max(101),
+  z.number().min(13).max(14),
+])
+const geoPoint = z
+  .object({ type: z.literal('Point'), coordinates: geoCoordinates })
+  .strict()
+
+const explainResult = z.object({
+  executionStats: z.object({
+    executionTimeMillis: z.any(),
+    totalKeysExamined: z.any(),
+    totalDocsExamined: z.any(),
+  }),
+})
+const toIn = (value: string | string[]) =>
+  Array.isArray(value) ? { $in: value } : value
 const getChangelog = t.procedure
   .input(
     z.object({
       sort: z.enum(['asc', 'desc']).default('desc'),
       since: z.string().datetime().optional(),
       until: z.string().datetime().optional(),
-      district: z.string().optional(),
+      district: z
+        .union([z.string(), z.array(z.string()).min(1).max(100)])
+        .optional(),
+      explain: z.boolean().default(false),
+
+      // Not enabled due to performance issue
+      // https://github.com/creatorsgarten/bkkchangelog/issues/2#issuecomment-1453460784
+      ...(false
+        ? {
+            near: z
+              .object({
+                geometry: geoPoint,
+                maxDistance: z.number().min(0),
+                minDistance: z.number().min(0),
+              })
+              .optional(),
+          }
+        : {}),
     }),
   )
   .query(async ({ input }) => {
@@ -59,7 +93,20 @@ const getChangelog = t.procedure
             },
           }
         : {}),
-      ...(input.district ? { district: input.district } : {}),
+      ...(input.district ? { district: toIn(input.district) } : {}),
+
+      // Not enabled due to performance issue
+      // ...(input.near
+      //   ? {
+      //       location: {
+      //         $near: {
+      //           $geometry: input.near.geometry,
+      //           $maxDistance: input.near.maxDistance,
+      //           $minDistance: input.near.minDistance,
+      //         },
+      //       },
+      //     }
+      //   : {}),
     }
     let cursor = changelog
       .find(filter)
@@ -81,7 +128,17 @@ const getChangelog = t.procedure
       return [{ ...rest, snapshot }]
     })
     const total = await totalPromise
-    return { total, results }
+    return {
+      total,
+      results,
+      ...(input.explain
+        ? {
+            explain: explainResult.parse(
+              await cursor.explain('executionStats'),
+            ),
+          }
+        : {}),
+    }
   })
 
 const getTicketSnapshots = t.procedure
@@ -165,6 +222,11 @@ export type AppRouter = typeof appRouter
 const doc = generateOpenAPIDocumentFromTRPCRouter(appRouter, {
   pathPrefix: '/api',
 })
+for (const path of Object.values(doc.paths)) {
+  if (path?.get?.tags?.length === 0) {
+    path.get.deprecated = true
+  }
+}
 
 server.get('/api.json', async (request, reply) => {
   return doc
@@ -180,6 +242,7 @@ server.get('/api', async (request, reply) => {
     <meta name="description" content="SwaggerUI" />
     <title>SwaggerUI</title>
     <link href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.15.5/swagger-ui.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.17.0/favicon-32x32.png" rel="icon" />
   </head>
   <body>
     <div id="swagger-ui"></div>
