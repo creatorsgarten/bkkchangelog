@@ -30,9 +30,11 @@ export async function generateImage(snapshot: any) {
     const coords = snapshot.data.coords.join(',')
     return mapboxEnv.MAPBOX_URL_TEMPLATE.replaceAll('%s', coords)
   }
+  const removeZeroWidthSpace = (text: string): string => text.replace(/\u200b/g, '');
+  
   const ticketId = snapshot.data.ticket_id
-  const normalizedComment = snapshot.data.description.replace(/\u200b/g, '');
-  const normalizedNote = snapshot.data.note.replace(/\u200b/g, '');
+  const normalizedComment = removeZeroWidthSpace(snapshot.data.description);
+  const normalizedNote = removeZeroWidthSpace(snapshot.data.note);
   const imageParams: ImageParams = {
     before: snapshot.data.photo_url,
     after: snapshot.data.after_photo || getMapBoxImage(),
