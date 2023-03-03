@@ -40,12 +40,9 @@ export async function getNextChangelogEntry(
   const todayAmericaSaoPaulo = new Date(Date.now() - 3 * 3600e3)
     .toISOString()
     .split('T')[0]
-  const todayAsiaBangkok = new Date(Date.now() + 7 * 3600e3)
-    .toISOString()
-    .split('T')[0]
   const until = Date.parse(todayAmericaSaoPaulo + 'T00:00:00Z') - 7 * 3600e3
   const endOfDay =
-    Date.parse(todayAsiaBangkok + 'T00:00:00Z') - 7 * 3600e3 + 86400e3
+    Date.parse(todayAmericaSaoPaulo + 'T00:00:00Z') + 3 * 3600e3 + 86400e3
   log(
     `Looking for changes between ${new Date(since).toISOString()} ` +
       `and ${new Date(until).toISOString()}...`,
