@@ -55,3 +55,10 @@ When faces are detected in Before or After image, they will be redacted. This is
 FACE_API_KEY=
 FACE_API_ENDPOINT=
 ```
+
+## Social posting schedule
+
+Finished tickets within the day will be posted on social on the next day starting at 10:00.
+
+<img width="971" alt="image" src="https://user-images.githubusercontent.com/193136/222732420-f61a472c-8b0f-48f0-8117-226803dfee17.png">
+
