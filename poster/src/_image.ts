@@ -31,12 +31,14 @@ export async function generateImage(snapshot: any) {
     return mapboxEnv.MAPBOX_URL_TEMPLATE.replaceAll('%s', coords)
   }
   const ticketId = snapshot.data.ticket_id
+  const normalizedComment = snapshot.data.description.replace(/\u200b/g, '');
+  const normalizedNote = snapshot.data.note.replace(/\u200b/g, '');
   const imageParams: ImageParams = {
     before: snapshot.data.photo_url,
     after: snapshot.data.after_photo || getMapBoxImage(),
     afterType: snapshot.data.after_photo ? 'photo' : 'map',
-    comment: snapshot.data.description,
-    note: snapshot.data.note,
+    comment: normalizedComment,
+    note: normalizedNote,
     ticketId,
   }
   const image = await generateJpeg(imageParams)
