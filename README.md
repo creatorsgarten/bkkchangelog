@@ -36,3 +36,22 @@ It will print the tweet text and the image path.
 
 - The tweet text, edit [`poster/src/_tweet.ts`](poster/src/_tweet.ts).
 - The image, edit [`poster/src/_image.ts`](poster/src/_image.ts).
+
+### Maps
+
+Some tickets do not have an after-image. In this case, a map is rendered instead. This is powered by [Mapbox Static Maps](https://www.mapbox.com/static-maps). To work on this feature, you need to set these environment variables after getting an access token for your Mapbox account:
+
+```sh
+MAPBOX_URL_TEMPLATE="https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/pin-s+ef4444(%s)/%s,15,0/360x360@2x?access_token=____"
+```
+
+Replace `____` with your access token.
+
+### Face redaction
+
+When faces are detected in Before or After image, they will be redacted. This is powered by [Azure Face API](https://azure.microsoft.com/en-us/products/cognitive-services/face). To test this feature, you need to set these environment variables after [creating a Face resource in Azure Portal and getting the endpoint and API key](https://learn.microsoft.com/en-us/azure/cognitive-services/computer-vision/quickstarts-sdk/identity-client-library?tabs=visual-studio&pivots=programming-language-rest-api#prerequisites):
+
+```sh
+FACE_API_KEY=
+FACE_API_ENDPOINT=
+```
