@@ -34,3 +34,4 @@ yarn-error.log*
 .data
 .envrc
 .env
+dist
