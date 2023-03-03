@@ -8,7 +8,7 @@ async function main(connect: ConnectFn) {
   const stream = createWriteStream('.data/backup.ndjson')
   let lastPrinted = 0
   let count = 0
-  for await (const doc of collection.find()) {
+  for await (const doc of collection.find().batchSize(5000)) {
     stream.write(JSON.stringify(doc.data) + '\n')
     count++
     if (Date.now() - lastPrinted > 5000) {
