@@ -25,6 +25,16 @@ server.get('/', async (request, reply) => {
   return { name: 'bkkchangelog' }
 })
 
+function authorize(req: FastifyRequest) {
+  const token = req.headers.authorization?.split(' ')[1]
+  if (!token || token !== process.env.SERVICE_API_TOKEN) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'This API requires a valid API token (it is not public)',
+    })
+  }
+}
+
 export const t = initTRPC
   .meta<OperationMeta>()
   .context<FastifyRequest>()
@@ -210,6 +220,35 @@ export const appRouter = t.router({
           idsOnUntil: await idsOnUntilPromise,
         }
       }),
+    countByDateAndDistrict: t.procedure.query(async ({ ctx }) => {
+      authorize(ctx)
+      const start = '2023-02-19T17:00:00Z'
+      const client = await dbPromise
+      const changelog = getChangelogCollection(client)
+      const cursor = changelog.aggregate([
+        { $match: { finished: { $gte: new Date(start) } } },
+        {
+          $group: {
+            _id: {
+              district: '$district',
+              finished: {
+                $dateToString: {
+                  date: '$finished',
+                  format: '%Y-%m-%d',
+                  timezone: 'Asia/Bangkok',
+                },
+              },
+            },
+            count: { $sum: 1 },
+          },
+        },
+      ])
+      const results = await cursor.toArray()
+      return {
+        total: results.length,
+        results: results,
+      }
+    }),
   }),
 
   ticketSnapshots: t.router({
