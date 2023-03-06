@@ -1,11 +1,13 @@
-import Fastify, { FastifyInstance } from 'fastify'
-import { connectToDatabase } from './_db'
+import Fastify, { FastifyInstance, FastifyRequest } from 'fastify'
+import { connectToDatabase, getTwitterThreadCollection } from './_db'
 import {
   enableForkMode,
   forkGenerateImageWorker,
   workOnNextTask,
 } from './_tasks'
 import { Transform } from 'stream'
+import { Env } from 'lazy-strict-env'
+import { z } from 'zod'
 
 enableForkMode()
 
@@ -14,6 +16,18 @@ async function main() {
     await forkGenerateImageWorker()
   } else {
     await runServer()
+  }
+}
+
+const authorizationEnv = Env(
+  z.object({
+    SERVICE_API_TOKEN: z.string(),
+  }),
+)
+function authorize(req: FastifyRequest) {
+  const token = req.headers.authorization?.split(' ')[1]
+  if (!token || token !== authorizationEnv.SERVICE_API_TOKEN) {
+    throw new Error('This API requires a valid API token (it is not public)')
   }
 }
 
@@ -27,7 +41,14 @@ async function runServer() {
     return { name: 'bkkchangelog-poster' }
   })
 
+  server.get('/twitterThreads', async (request, reply) => {
+    authorize(request)
+    const twitterThreads = getTwitterThreadCollection(db)
+    return await twitterThreads.find({}).toArray()
+  })
+
   server.post('/work', async (request, reply) => {
+    authorize(request)
     reply.hijack()
     reply.raw.writeHead(200, {
       'Content-Type': 'text/plain',

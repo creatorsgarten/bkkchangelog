@@ -14,6 +14,7 @@ import {
   OperationMeta,
   generateOpenAPIDocumentFromTRPCRouter,
 } from 'openapi-trpc'
+import { Env } from 'lazy-strict-env'
 
 const dbPromise = connectToDatabase()
 
@@ -25,9 +26,14 @@ server.get('/', async (request, reply) => {
   return { name: 'bkkchangelog' }
 })
 
+const authorizationEnv = Env(
+  z.object({
+    SERVICE_API_TOKEN: z.string(),
+  }),
+)
 function authorize(req: FastifyRequest) {
   const token = req.headers.authorization?.split(' ')[1]
-  if (!token || token !== process.env.SERVICE_API_TOKEN) {
+  if (!token || token !== authorizationEnv.SERVICE_API_TOKEN) {
     throw new TRPCError({
       code: 'UNAUTHORIZED',
       message: 'This API requires a valid API token (it is not public)',
