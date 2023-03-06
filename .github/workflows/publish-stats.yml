@@ -25,6 +25,7 @@ jobs:
       - run: cd stats-publisher && pnpm run generate
         env:
           SERVICE_API_TOKEN: ${{ secrets.SERVICE_API_TOKEN }}
+      - run: cd stats-publisher && rsync -avz public/ dist/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
