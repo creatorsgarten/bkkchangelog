@@ -45,6 +45,29 @@ async function main(connect: ConnectFn) {
       //   },
       // },
 
+      // 2023-03-07: Fixing bug with บางบอน district
+      // {
+      //   $match: {
+      //     updated: { $gte: new Date('2023-02-19T17:00:00') },
+      //     'data.address': /บางบอน/,
+      //   },
+      // },
+
+      // 2023-03-07: Fixing bug with มีนบุรี district
+      // {
+      //   $match: {
+      //     updated: { $gte: new Date('2023-02-19T17:00:00') },
+      //     'data.address': /มีนบุรี/,
+      //   },
+      // },
+
+      // 2023-03-07: Reindexing all data due to relaxing the address format
+      // {
+      //   $match: {
+      //     updated: { $gte: new Date('2023-02-19T17:00:00') },
+      //   },
+      // },
+
       // When reindexing, comment out the next line
       { $match: { updated: { $gte: new Date(Date.now() - 3 * 86400e3) } } },
 
@@ -110,7 +133,7 @@ async function main(connect: ConnectFn) {
           'แขวงสวนหลวง เขตสวนหลวง กรุงเทพมหานคร',
         )
         .match(
-          /แขวง\s*(\S*?)\s+เขต\s*(\S*?)\s+กรุงเทพมหานคร\s+(\d+)\s+ประเทศไทย$/,
+          /(?:แขวง\s*(\S*?))?\s+เขต\s*(\S*?)\s+กรุงเทพมหานคร\s+(\d+)\s+ประเทศไทย$/,
         )
       if (!m) continue
       const [, subdistrict, district, postcode] = m
