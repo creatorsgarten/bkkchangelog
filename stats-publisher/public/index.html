@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bkkchangelog</title>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.11.1/dist/cdn.min.js"
+    ></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container py-3" x-data="changelog">
+      <h1 class="mb-3">bkkchangelog</h1>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">เขต</th>
+            <th scope="col" class="text-end">
+              จำนวนเรื่องที่แก้ไข 30 วันล่าสุด
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="district in info" :key="district.name">
+            <tr>
+              <td x-text="district.name" class="fs-4"></td>
+              <td class="text-end">
+                <span
+                  x-text="district.count"
+                  class="fs-4"
+                  style="font-variant-numeric: tabular-nums"
+                ></span>
+                <div
+                  class="d-inline-flex ms-3"
+                  style="
+                    height: 44px;
+                    gap: 1px;
+                    margin-top: -4px;
+                    margin-bottom: -8px;
+                    vertical-align: top;
+                  "
+                >
+                  <template x-for="item in district.graph" :key="item.date">
+                    <div class="d-flex align-items-end">
+                      <template x-if="!!item.url">
+                        <a
+                          :href="item.url"
+                          class="d-flex align-self-stretch align-items-end"
+                          style="flex: none"
+                          :title="item.date"
+                        >
+                          <div
+                            :style="`background: currentColor; opacity: 0.6; width: 8px; height: ${item.height}`"
+                          ></div>
+                        </a>
+                      </template>
+                      <template x-if="!item.url">
+                        <div
+                          :style="`background: currentColor; opacity: 0.6; width: 8px; height: ${item.height}`"
+                          :title="item.date"
+                        ></div>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <script>
+      const districts = [
+        'พระนคร',
+        'ดุสิต',
+        'หนองจอก',
+        'บางรัก',
+        'บางเขน',
+        'บางกะปิ',
+        'ปทุมวัน',
+        'ป้อมปราบศัตรูพ่าย',
+        'พระโขนง',
+        'มีนบุรี',
+        'ลาดกระบัง',
+        'ยานนาวา',
+        'สัมพันธวงศ์',
+        'พญาไท',
+        'ธนบุรี',
+        'บางกอกใหญ่',
+        'ห้วยขวาง',
+        'คลองสาน',
+        'ตลิ่งชัน',
+        'บางกอกน้อย',
+        'บางขุนเทียน',
+        'ภาษีเจริญ',
+        'หนองแขม',
+        'ราษฎร์บูรณะ',
+        'บางพลัด',
+        'ดินแดง',
+        'บึงกุ่ม',
+        'สาทร',
+        'บางซื่อ',
+        'จตุจักร',
+        'บางคอแหลม',
+        'ประเวศ',
+        'คลองเตย',
+        'สวนหลวง',
+        'จอมทอง',
+        'ดอนเมือง',
+        'ราชเทวี',
+        'ลาดพร้าว',
+        'วัฒนา',
+        'บางแค',
+        'หลักสี่',
+        'สายไหม',
+        'คันนายาว',
+        'สะพานสูง',
+        'วังทองหลาง',
+        'คลองสามวา',
+        'บางนา',
+        'ทวีวัฒนา',
+        'ทุ่งครุ',
+        'บางบอน',
+      ]
+      document.addEventListener('alpine:init', () => {
+        Alpine.data('changelog', () => ({
+          districts,
+          finishedTicketStats: null,
+          twitterThreads: null,
+          get info() {
+            const countByDistrict = {}
+            const countByDateAndDistrict = {}
+            const urlByDateAndDistrict = {}
+            let maxCount = 1
+            if (this.finishedTicketStats) {
+              for (const {
+                _id: { district, finished },
+                count,
+              } of this.finishedTicketStats) {
+                countByDistrict[district] = countByDistrict[district] || 0
+                countByDistrict[district] += count
+                const key = `${finished}-${district}`
+                countByDateAndDistrict[key] = count
+                maxCount = Math.max(maxCount, count)
+              }
+            }
+            if (this.twitterThreads) {
+              for (const { _id, firstTweetId } of this.twitterThreads) {
+                const url = `https://twitter.com/bkkchangelog/status/${firstTweetId}`
+                urlByDateAndDistrict[_id] = url
+              }
+            }
+            const now = Date.now()
+            const dates = Array.from(
+              { length: 14 },
+              (_, i) =>
+                new Date(now + 7 * 3600e3 - (i + 1) * 86400e3)
+                  .toISOString()
+                  .split('T')[0],
+            )
+            dates.reverse()
+            return this.districts.map((district) => {
+              const districtInfo = {
+                name: district,
+                count: countByDistrict[district],
+                graph: dates.map((date) => {
+                  const key = `${date}-${district}`
+                  const count = countByDateAndDistrict[key] || 0
+                  const height = Math.round((count / maxCount) * 100) + '%'
+                  const url = urlByDateAndDistrict[key]
+                  return { date, count, height, url }
+                }),
+              }
+              return districtInfo
+            })
+          },
+          init() {
+            const loadFrom = async (url, callback) => {
+              const response = await fetch(url)
+              const data = await response.json()
+              callback(data)
+            }
+            loadFrom(
+              'https://creatorsgarten.github.io/bkkchangelog/finishedTicketStats.json',
+              (data) => {
+                this.finishedTicketStats = data
+              },
+            )
+            loadFrom(
+              'https://creatorsgarten.github.io/bkkchangelog/twitterThreads.json',
+              (data) => {
+                this.twitterThreads = data
+              },
+            )
+          },
+        }))
+      })
+    </script>
+  </body>
+</html>
