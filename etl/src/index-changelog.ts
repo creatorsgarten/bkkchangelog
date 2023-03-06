@@ -36,7 +36,19 @@ async function main(connect: ConnectFn) {
   const FINISHED = 'เสร็จสิ้น'
   const ticketIds = await collection
     .aggregate([
+      // Reindexing history:
+      // 2023-03-07: Fixing bug with สวนหลวง district
+      // {
+      //   $match: {
+      //     updated: { $gte: new Date('2023-02-19T17:00:00') },
+      //     'data.address': /แขวงสวนหลวง/,
+      //   },
+      // },
+
+      // When reindexing, comment out the next line
       { $match: { updated: { $gte: new Date(Date.now() - 3 * 86400e3) } } },
+
+      // Filter just the finished tickets and obtain their IDs
       { $match: { 'data.state': FINISHED } },
       { $group: { _id: '$data.ticket_id' } },
     ])
@@ -89,6 +101,14 @@ async function main(connect: ConnectFn) {
       // The address should end with "แขวง__ เขต__ กรุงเทพมหานคร <รหัสไปรษณีย์> ประเทศไทย"
       const m = lastEntry.data.address
         .trim()
+        // Just for สวนหลวง, Google Maps information is buggy —
+        // - It says "แขวงสวนหลวง" instead of "เขตสวนหลวง"
+        // - It says "แขวงสวนหลวง" regardless of whether the place in question
+        //   is inside แขวงสวนหลวง, แขวงอ่อนนุช, or แขวงพัฒนาการ
+        .replace(
+          /แขวง\s*สวนหลวง\s+กรุงเทพมหานคร/,
+          'แขวงสวนหลวง เขตสวนหลวง กรุงเทพมหานคร',
+        )
         .match(
           /แขวง\s*(\S*?)\s+เขต\s*(\S*?)\s+กรุงเทพมหานคร\s+(\d+)\s+ประเทศไทย$/,
         )
