@@ -8,6 +8,7 @@ import { resolve } from 'path'
 import { createHash } from 'crypto'
 import { Env } from 'lazy-strict-env'
 import { z } from 'zod'
+import emojiRegex from 'emoji-regex'
 
 let _canvasKitPromise: Promise<CanvasKit> | undefined
 function getCanvasKit() {
@@ -25,16 +26,15 @@ const mapboxEnv = Env(
   }),
 )
 
+const emojis = emojiRegex()
+
 export async function generateImage(snapshot: any) {
   const getMapBoxImage = () => {
     const coords = snapshot.data.coords.join(',')
     return mapboxEnv.MAPBOX_URL_TEMPLATE.replaceAll('%s', coords)
   }
   const removeZeroWidthSpaceAndEmojis = (text: string): string =>
-    text.replace(
-      /[\u200b\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{1F9B0}-\u{1F9B3}]/gu,
-      '',
-    )
+    text.replace(emojis, '').replace(/[\u200b]/gu, '')
 
   const ticketId = snapshot.data.ticket_id
   const normalizedComment = removeZeroWidthSpaceAndEmojis(

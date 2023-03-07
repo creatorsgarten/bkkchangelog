@@ -10,6 +10,7 @@
     "@trpc/client": "^10.13.2",
     "@trpc/server": "^10.13.2",
     "canvaskit-wasm": "^0.38.0",
+    "emoji-regex": "^10.2.1",
     "fastify": "^4.13.0",
     "jimp": "^0.22.7",
     "lazy-strict-env": "^0.3.1",
