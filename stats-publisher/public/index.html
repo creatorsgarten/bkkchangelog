@@ -37,7 +37,16 @@
         <tbody>
           <template x-for="district in info" :key="district.name">
             <tr>
-              <td x-text="district.name" class="fs-4"></td>
+              <td class="fs-4">
+                <a
+                  data-bs-toggle="modal"
+                  data-bs-target="#districtDataModal"
+                  x-text="district.name"
+                  href="#districtDataModal"
+                  @click.prevent="currentModalDistrict = district"
+                  style="text-decoration: none"
+                ></a>
+              </td>
               <td class="text-end">
                 <span
                   x-text="district.count"
@@ -82,6 +91,61 @@
           </template>
         </tbody>
       </table>
+
+      <div
+        class="modal fade"
+        id="districtDataModal"
+        tabindex="-1"
+        aria-labelledby="districtDataModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1
+                class="modal-title fs-5"
+                id="districtDataModalLabel"
+                x-text="'เขต' + (currentModalDistrict && currentModalDistrict.name)"
+              ></h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <template x-if="currentModalDistrict">
+                <ul>
+                  <template
+                    x-for="item in Array.from(currentModalDistrict.graph).reverse()"
+                    :key="item.date"
+                  >
+                    <template x-if="!!item.url">
+                      <li :style="`color: ${colorOfDate(item.date)}`">
+                        <a :href="item.url" x-text="titleOfDate(item.date)"></a>
+                        <span
+                          x-text="`(${item.count})`"
+                          style="color: var(--bs-body-color)"
+                        ></span>
+                      </li>
+                    </template>
+                  </template>
+                </ul>
+              </template>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <script>
       const districts = [
@@ -141,6 +205,7 @@
           districts,
           finishedTicketStats: null,
           twitterThreads: null,
+          currentModalDistrict: null,
           get info() {
             const now = Date.now()
             const dates = Array.from(
@@ -192,6 +257,36 @@
               }
               return districtInfo
             })
+          },
+          titleOfDate(date) {
+            const dateObj = new Date(date + 'T00:00:00Z')
+            // const weekday =
+            //   'วัน' +
+            //   'อาทิตย์,จันทร์,อังคาร,พุธ,พฤหัสบดี,ศุกร์,เสาร์'.split(',')[
+            //     dateObj.getUTCDay()
+            //   ]
+            const month =
+              'มกราคม,กุมภาพันธ์,มีนาคม,เมษายน,พฤษภาคม,มิถุนายน,กรกฎาคม,สิงหาคม,กันยายน,ตุลาคม,พฤศจิกายน,ธันวาคม'.split(
+                ',',
+              )[dateObj.getUTCMonth()]
+            return (
+              // weekday +
+              // 'ที่ ' +
+              dateObj.getUTCDate() +
+              ' ' +
+              month +
+              ' ' +
+              dateObj.getUTCFullYear()
+            )
+          },
+          colorOfDate(date) {
+            const dateObj = new Date(date + 'T00:00:00Z')
+            const weekday = dateObj.getUTCDay()
+            return (
+              'var(--bs-' +
+              'red,yellow,pink,green,orange,cyan,indigo'.split(',')[weekday] +
+              ')'
+            )
           },
           init() {
             const loadFrom = async (url, callback) => {
