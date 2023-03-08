@@ -10,6 +10,7 @@ import { generateImage } from './_image'
 import { Env } from 'lazy-strict-env'
 import { z } from 'zod'
 import { fork } from 'child_process'
+import { postToDiscord } from './_discord'
 
 let forkMode = false
 
@@ -166,6 +167,9 @@ export async function workOnTask(
       { $set: { lastTweetedAt: new Date() } },
       { upsert: true },
     )
+    await postToDiscord(mongo, status.id_str, entry.district).catch((e) => {
+      console.error('Error posting to Discord', e)
+    })
     return result
   } catch (error: any) {
     await collection.updateOne(

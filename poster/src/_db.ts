@@ -47,6 +47,10 @@ export interface TwitterThread {
   firstTweetId: string
   lastTweetId: string
 }
+export interface DiscordThread {
+  _id: string
+  messageId: string
+}
 
 export async function connectToDatabase(): Promise<MongoClient> {
   return await MongoClient.connect(env.POSTER_MONGODB_URI)
@@ -56,6 +60,9 @@ export function getTweetTaskCollection(client: MongoClient) {
 }
 export function getTwitterThreadCollection(client: MongoClient) {
   return client.db().collection<TwitterThread>('twitter_threads')
+}
+export function getDiscordThreadCollection(client: MongoClient) {
+  return client.db().collection<DiscordThread>('discord_threads')
 }
 export function getStateCollection(client: MongoClient) {
   return client.db().collection<PosterState>('state')
