@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This project has been shut down. The last tweet was posted on 2023-06-07, before access to Twitter API was shut down. The source code remains available here for reference (in case someone wants to revive it). The latest aggregated daily stats (from 2023-02-20 to 2023-08-30) is available at <https://creatorsgarten.github.io/bkkchangelog/finishedTicketStats.json>.
+
 # bkkchangelog
 
 A project to archive and generate a change log based on [Traffy Fondue](https://traffy.in.th/) data.
